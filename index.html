@@ -13,7 +13,386 @@
     />
     <title>ZPL Converter – Convert Images to Zebra ZPL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="./dict/zpl-converter.js"></script>
+    <script>
+      !(function (t) {
+        if (void 0 === t.pako && "function" == typeof require)
+          try {
+            t.pako = require("pako");
+          } catch (t) {
+            console.error(
+              "Pako dependency is required. Please include pako.min.js"
+            );
+          }
+        const e = (function () {
+          const e =
+              "object" == typeof process &&
+              "object" == typeof process.release &&
+              "node" === process.release.name
+                ? require("zlib")
+                : null,
+            r = (() => {
+              let t = Array(256);
+              for (let e = 0; e < 16; e++) t[e] = "0" + e.toString(16);
+              for (let e = 16; e < 256; e++) t[e] = e.toString(16);
+              return t;
+            })(),
+            n = [
+              0, 4129, 8258, 12387, 16516, 20645, 24774, 28903, 33032, 37161,
+              41290, 45419, 49548, 53677, 57806, 61935, 4657, 528, 12915, 8786,
+              21173, 17044, 29431, 25302, 37689, 33560, 45947, 41818, 54205,
+              50076, 62463, 58334, 9314, 13379, 1056, 5121, 25830, 29895, 17572,
+              21637, 42346, 46411, 34088, 38153, 58862, 62927, 50604, 54669,
+              13907, 9842, 5649, 1584, 30423, 26358, 22165, 18100, 46939, 42874,
+              38681, 34616, 63455, 59390, 55197, 51132, 18628, 22757, 26758,
+              30887, 2112, 6241, 10242, 14371, 51660, 55789, 59790, 63919,
+              35144, 39273, 43274, 47403, 23285, 19156, 31415, 27286, 6769,
+              2640, 14899, 10770, 56317, 52188, 64447, 60318, 39801, 35672,
+              47931, 43802, 27814, 31879, 19684, 23749, 11298, 15363, 3168,
+              7233, 60846, 64911, 52716, 56781, 44330, 48395, 36200, 40265,
+              32407, 28342, 24277, 20212, 15891, 11826, 7761, 3696, 65439,
+              61374, 57309, 53244, 48923, 44858, 40793, 36728, 37256, 33193,
+              45514, 41451, 53516, 49453, 61774, 57711, 4224, 161, 12482, 8419,
+              20484, 16421, 28742, 24679, 33721, 37784, 41979, 46042, 49981,
+              54044, 58239, 62302, 689, 4752, 8947, 13010, 16949, 21012, 25207,
+              29270, 46570, 42443, 38312, 34185, 62830, 58703, 54572, 50445,
+              13538, 9411, 5280, 1153, 29798, 25671, 21540, 17413, 42971, 47098,
+              34713, 38840, 59231, 63358, 50973, 55100, 9939, 14066, 1681, 5808,
+              26199, 30326, 17941, 22068, 55628, 51565, 63758, 59695, 39368,
+              35305, 47498, 43435, 22596, 18533, 30726, 26663, 6336, 2273,
+              14466, 10403, 52093, 56156, 60223, 64286, 35833, 39896, 43963,
+              48026, 19061, 23124, 27191, 31254, 2801, 6864, 10931, 14994,
+              64814, 60687, 56684, 52557, 48554, 44427, 40424, 36297, 31782,
+              27655, 23652, 19525, 15522, 11395, 7392, 3265, 61215, 65342,
+              53085, 57212, 44955, 49082, 36825, 40952, 28183, 32310, 20053,
+              24180, 11923, 16050, 3793, 7920,
+            ];
+          function o(t) {
+            let e = 0;
+            for (let r = 0; r < t.length; r++) {
+              const o = t.charCodeAt(r);
+              if (o > 255) throw new RangeError();
+              e = n[255 & (o ^ (e >> 8))] ^ (e << 8);
+            }
+            return (65535 & e).toString(16).padStart(4, "0");
+          }
+          function i(t, e, r, n, o, i = {}) {
+            let a, h, g, l;
+            if (((n = (255 * n) / 100), o))
+              (a = g = 0), (h = e - 1), (l = r - 1);
+            else {
+              (a = e), (g = r), (h = l = 0);
+              let o = 0,
+                i = 0;
+              for (let r = 0; r < t.length; r += 4) {
+                const s = t[r + 3] / 255;
+                0.3 * t[r] * s +
+                  255 * (1 - s) +
+                  0.59 * t[r + 1] * s +
+                  255 * (1 - s) +
+                  0.11 * t[r + 2] * s +
+                  255 * (1 - s) <=
+                  n &&
+                  (a > o && (a = o),
+                  g > i && (g = i),
+                  h < o && (h = o),
+                  l < i && (l = i)),
+                  ++o === e && ((o = 0), i++);
+              }
+            }
+            const s = h - a + 1,
+              c = l - g + 1,
+              d = new Uint8Array(s * c);
+            let f = 0;
+            for (let r = g; r <= l; r++) {
+              let o = 4 * (r * e + a);
+              for (let e = a; e <= h; e++) {
+                const e = t[o + 3] / 255,
+                  r =
+                    0.3 * t[o] * e +
+                    255 * (1 - e) +
+                    0.59 * t[o + 1] * e +
+                    255 * (1 - e) +
+                    0.11 * t[o + 2] * e +
+                    255 * (1 - e);
+                (d[f++] = r <= n ? 1 : 0), (o += 4);
+              }
+            }
+            return (d.width = s), (d.height = c), d;
+          }
+          function a(t) {
+            const e = t.width,
+              r = t.height,
+              n = new Uint8Array(Math.ceil(e / 8) * r);
+            let o = 0,
+              i = 0,
+              a = 0;
+            for (let r = 0; r < t.length; r++)
+              (i |= t[r] << (7 - (a++ % 8))),
+                (a !== e && a % 8 != 0) ||
+                  ((n[o++] = i), (i = 0), a === e && (a = 0));
+            return (n.width = e), (n.height = r), n;
+          }
+          function h(t) {
+            const e = t.width,
+              r = t.height,
+              n = new Uint8Array(Math.ceil(e / 8) * r);
+            let o = 0,
+              i = 0,
+              a = 0;
+            for (let r = t.length - 1; r >= 0; r--)
+              (i |= t[r] << (7 - (a++ % 8))),
+                (a !== e && a % 8 != 0) ||
+                  ((n[o++] = i), (i = 0), a === e && (a = 0));
+            return (n.width = e), (n.height = r), n;
+          }
+          function g(t) {
+            const e = t.width,
+              r = t.height,
+              n = new Uint8Array(Math.ceil(r / 8) * e);
+            let o = 0;
+            for (let i = e - 1; i >= 0; i--) {
+              let a = 0,
+                h = 0;
+              for (let g = 0; g < r; g++)
+                (a |= t[g * e + i] << (7 - (h++ % 8))),
+                  (g !== r - 1 && h % 8 != 0) || ((n[o++] = a), (a = 0));
+            }
+            return (n.width = r), (n.height = e), n;
+          }
+          function l(t) {
+            const e = t.width,
+              r = t.height,
+              n = new Uint8Array(Math.ceil(r / 8) * e);
+            let o = 0;
+            for (let i = 0; i < e; i++) {
+              let a = 0,
+                h = 0;
+              for (let g = r - 1; g >= 0; g--)
+                (a |= t[g * e + i] << (7 - (h++ % 8))),
+                  (0 !== g && h % 8 != 0) || ((n[o++] = a), (a = 0));
+            }
+            return (n.width = r), (n.height = e), n;
+          }
+          function s(r, n, s = {}) {
+            if (!n || n < 0) throw new Error("Invalid width");
+            const c = i(r, n, ~~(r.length / n / 4), +s.black || 50, s.notrim, {
+              contrast: s.contrast,
+              brightness: s.brightness,
+              dithering: s.dithering,
+              sharpen: s.sharpen,
+              padding: s.padding,
+            });
+            let d;
+            switch (s.rotate) {
+              case "R":
+                d = l(c);
+                break;
+              case "B":
+              case "L":
+                d = g(c);
+                break;
+              case "I":
+                d = h(c);
+                break;
+              default:
+                d = a(c);
+            }
+            const f = d.width,
+              m = d.height,
+              w = ~~((f + 7) / 8);
+            let u;
+            return (
+              (u = e
+                ? e.deflateSync(d).toString("base64")
+                : (function (t) {
+                    let e = "";
+                    for (let r = 0; r < t.length; r++)
+                      e += String.fromCharCode(t[r]);
+                    return btoa(e);
+                  })(t.pako.deflate(d))),
+              {
+                length: d.length,
+                rowlen: w,
+                width: f,
+                height: m,
+                z64: `:Z64:${u}:${o(u)}`,
+              }
+            );
+          }
+          function c(t, e, n = {}) {
+            if (!e || e < 0) throw new Error("Invalid width");
+            const o = i(t, e, ~~(t.length / e / 4), +n.black || 50, n.notrim, {
+              contrast: n.contrast,
+              brightness: n.brightness,
+              dithering: n.dithering,
+              sharpen: n.sharpen,
+              padding: n.padding,
+            });
+            let s;
+            switch (n.rotate) {
+              case "R":
+                s = l(o);
+                break;
+              case "B":
+              case "L":
+                s = g(o);
+                break;
+              case "I":
+                s = h(o);
+                break;
+              default:
+                s = a(o);
+            }
+            const c = s.width,
+              d = s.height,
+              f = ~~((c + 7) / 8);
+            let m = "";
+            for (let t = 0; t < s.length; t++) m += r[s[t]];
+            let w = "";
+            const u = /([0-9a-fA-F])\1{2,}/g;
+            let b = u.exec(m),
+              T = 0;
+            for (; b; ) {
+              w += m.substring(T, b.index);
+              let t = b[0].length;
+              for (; t >= 400; ) (w += "z"), (t -= 400);
+              t >= 20 && ((w += "_ghijklmnopqrstuvwxy"[~~(t / 20)]), (t %= 20)),
+                t > 0 && (w += "_GHIJKLMNOPQRSTUVWXY"[t]),
+                (w += b[1]),
+                (T = u.lastIndex),
+                (b = u.exec(m));
+            }
+            return (
+              (w += m.substr(T)),
+              { length: s.length, rowlen: f, width: c, height: d, acs: w }
+            );
+          }
+          return (
+            (function () {
+              for (let t = 0; t < 256; t++) {
+                let e = t;
+                for (let t = 0; t < 8; t++)
+                  e = 1 & e ? 3988292384 ^ (e >>> 1) : e >>> 1;
+                n[t] = e;
+              }
+            })(),
+            {
+              rgbaToZ64: s,
+              rgbaToACS: c,
+              imageToZ64: function (t, e = {}) {
+                const r = document.createElement("canvas"),
+                  n = r.getContext("2d");
+                (r.width = +t.width || t.offsetWidth),
+                  (r.height = +t.height || t.offsetHeight),
+                  (n.imageSmoothingQuality = "high"),
+                  n.drawImage(t, 0, 0, r.width, r.height);
+                const o = n.getImageData(0, 0, r.width, r.height),
+                  i = {
+                    ...e,
+                    contrast: e.contrast || 15,
+                    sharpen: e.sharpen || 2,
+                    dithering: e.dithering || "floyd-steinberg",
+                  };
+                return s(o.data, o.width, i);
+              },
+              imageToACS: function (t, e = {}) {
+                const r = document.createElement("canvas"),
+                  n = r.getContext("2d");
+                (r.width = +t.width || t.offsetWidth),
+                  (r.height = +t.height || t.offsetHeight),
+                  (n.imageSmoothingQuality = "high"),
+                  n.drawImage(t, 0, 0, r.width, r.height);
+                const o = n.getImageData(0, 0, r.width, r.height);
+                return c(o.data, o.width, e);
+              },
+            }
+          );
+        })();
+        function r(t, e = {}) {
+          const r = {
+            width: 8,
+            height: 4.5,
+            blackThreshold: 50,
+            darkness: 70,
+            rotation: "N",
+            format: "ACS",
+            noTrim: !0,
+            ...e,
+          };
+          return new Promise((e, n) => {
+            try {
+              const o = new Image();
+              (o.onload = () => {
+                try {
+                  const t = Math.round(80 * r.width),
+                    n = Math.round(80 * r.height),
+                    i = document.createElement("canvas");
+                  (i.width = t), (i.height = n);
+                  const a = i.getContext("2d");
+                  let h;
+                  (a.fillStyle = "#FFFFFF"),
+                    a.fillRect(0, 0, t, n),
+                    a.drawImage(o, 0, 0, t, n),
+                    (h =
+                      "Z64" === r.format
+                        ? imageToZ64(i, {
+                            black: r.blackThreshold,
+                            rotate: r.rotation,
+                            notrim: r.noTrim,
+                          })
+                        : imageToACS(i, {
+                            black: r.blackThreshold,
+                            rotate: r.rotation,
+                            notrim: r.noTrim,
+                          }));
+                  const g =
+                    `^XA\n^FO0,0^FX Image (${h.width}x${h.height}px, ${r.rotation}-Rotate, ${r.blackThreshold}% Black)^FS\n^GFA,${h.length},${h.length},${h.rowlen},` +
+                    ("Z64" === r.format ? h.z64 : h.acs) +
+                    "\n" +
+                    `^MD${r.darkness}\n^XZ`;
+                  e(g);
+                } catch (t) {
+                  n(
+                    new Error(
+                      `Failed to convert to ZPL: ${
+                        t.message || "Unknown error"
+                      }`
+                    )
+                  );
+                }
+              }),
+                (o.onerror = () => {
+                  n(new Error("Failed to load image from base64"));
+                }),
+                (o.src = t.startsWith("data:image")
+                  ? t
+                  : `data:image/png;base64,${t}`);
+            } catch (t) {
+              n(
+                new Error(
+                  `ZPL conversion error: ${t.message || "Unknown error"}`
+                )
+              );
+            }
+          });
+        }
+        (t.imageToZ64 = e.imageToZ64),
+          (t.imageToACS = e.imageToACS),
+          "undefined" != typeof module && module.exports
+            ? (module.exports = {
+                convertToZPL: r,
+                imageToZ64: e.imageToZ64,
+                imageToACS: e.imageToACS,
+                rgbaToZ64: e.rgbaToZ64,
+                rgbaToACS: e.rgbaToACS,
+              })
+            : ((t.convertToZPL = r),
+              (t.imageToZ64 = e.imageToZ64),
+              (t.imageToACS = e.imageToACS),
+              (t.rgbaToZ64 = e.rgbaToZ64),
+              (t.rgbaToACS = e.rgbaToACS));
+      })("undefined" != typeof self ? self : this);
+    </script>
     <style>
       * {
         box-sizing: border-box;
