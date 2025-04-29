@@ -23,28 +23,33 @@ Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="./zpl-converter.js"></script>
 
+<input type="file" id="imageInput" accept="image/*" /><br><br>
+<textarea id="zplOutput" placeholder="ZPL output will appear here..."></textarea>
+
 <script>
-  async function convertImageToZPL() {
-    // Assuming base64Image is the base64 string of your image
-    const base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; // Replace with your base64 string
+  document.getElementById("imageInput").addEventListener("change", async function () {
+    const file = this.files[0];
+    const output = document.getElementById("zplOutput");
+    if (!file) return;
 
-    const imageData = base64Image.split(",")[1]; // Strip the base64 header
-
-    const zplCode = await convertToZPL(imageData, {
-      width: 8, // cm
-      height: 4.5, // cm
-      format: "ACS", // or 'Z64'
-      rotation: "N", // N, R, L, or I
-      blackThreshold: 50,
-      darkness: 70,
-      noTrim: true,
-    });
-
-    console.log(zplCode); // Output ZPL string
-  }
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+      const base64 = e.target.result.split(",")[1];
+      const zplCode = await convertToZPL(base64, {
+        width: 8, // cm
+        height: 4.5, // cm
+        format: "ACS", // or 'Z64'
+        rotation: "N", // N, R, L, or I
+        blackThreshold: 50,
+        darkness: 70,
+        noTrim: true,
+      });
+      output.value = zplCode;
+    };
+    reader.readAsDataURL(file);
+  });
 </script>
 
-<button onclick="convertImageToZPL()">Convert Base64 Image to ZPL</button>
 ```
 
 ---
