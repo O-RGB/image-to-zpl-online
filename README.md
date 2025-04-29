@@ -18,22 +18,21 @@ Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in
 
 🚀 Usage Example
 
+```html
 <!-- Import pako for Z64 compression -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
 <script>
-  // Assuming imageData is a base64 or Blob of the image
   const zplCode = await convertToZPL(imageData, {
-    width: 8,         // cm
-    height: 4.5,      // cm
-    format: 'ACS',    // or 'Z64'
-    rotation: 'N',    // N, R, L, or I
+    width: 8,
+    height: 4.5,
+    format: 'ACS',
+    rotation: 'N',
     blackThreshold: 50,
     darkness: 70,
     noTrim: true
   });
-
-  console.log(zplCode); // Output your ZPL string
+  console.log(zplCode);
 </script>
 
 ---
