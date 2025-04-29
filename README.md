@@ -1,12 +1,12 @@
-# 🖼️ Image to ZPL Converter
+🖼️ Image to ZPL Converter
 
 Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in your browser.
 
-🧪 **Live Demo**: [image-to-zpl-online.vercel.app](https://image-to-zpl-online.vercel.app/)
+🧪 Live Demo: image-to-zpl-online.vercel.app
 
 ---
 
-## ✨ Features
+✨ Features
 
 - Convert images to **Z64** or **ACS** formats
 - Set label size, rotation, threshold, and darkness
@@ -16,9 +16,8 @@ Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in
 
 ---
 
-## 🚀 Usage Example
+🚀 Usage Example
 
-```html
 <!-- Import pako for Z64 compression -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
@@ -39,12 +38,8 @@ Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in
 
 ---
 
-## 🙏 Acknowledgements
+🙏 Acknowledgements
 
 This project is inspired by and uses parts of code from:
 
-- [metafloor/zpl-image](https://github.com/metafloor/zpl-image) – ZPL image converter in JavaScript
-
-Modifications and additional features were made specifically for use in this web-based tool.
-
-Thank you to the original authors for providing such a great project!
+- metafloor/zpl-image (https://github.com/metafloor/zpl-image) – ZPL image converter in JavaScript
