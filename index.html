@@ -130,7 +130,7 @@
       .download-link {
         position: sticky;
         bottom: 20px;
-        margin-top: 15px;
+        /* margin-top: 15px; */
         display: inline-block;
         background-color: #808080;
         color: white;
@@ -161,35 +161,37 @@
         display: none;
       }
       .code-example {
-        background-color: #f8f8f8;
-        border-radius: 8px;
-        font-size: 13px;
-        border: 1px solid #e0e0e0;
-        line-height: 1.6;
-        padding: 16px;
-        color: #333;
+        background-color: #000000;
+        color: #00ff00;
+        border: 2px inset #c0c0c0;
+        padding: 10px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 12px;
         white-space: pre-wrap;
-        word-break: break-word;
+        word-break: break-all;
         overflow-x: hidden;
+        margin: 10px 0;
       }
 
       .code-example .comment {
-        color: #6a9955;
-        font-style: italic;
+        color: #00ffff;
       }
+
       .code-example .keyword {
-        color: #569cd6;
+        color: #ff00ff;
         font-weight: bold;
       }
+
       .code-example .string {
-        color: #ce9178;
+        color: #ffff00;
       }
+
       .code-example .number {
-        color: #b5cea8;
+        color: #ff9900;
       }
 
       .section {
-        margin-bottom: 15px;
+        margin-bottom: 0;
       }
 
       .output-section {
@@ -319,10 +321,11 @@
       </div>
       <div class="section">
         <h3>How to Use</h3>
-        <pre class="code-example"><code>
-          <span class="comment">// Import pako for compression (if needed)</span>
+        <pre
+          class="code-example"
+        ><span class="comment">// Import pako for compression (if needed)</span>
           &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"&gt;&lt;/script&gt;
-          
+                      
           <span class="comment">// Basic usage example</span>
           <span class="keyword">const</span> zplCode = <span class="keyword">await</span> convertToZPL(imageData, {
             width: <span class="number">8</span>,        <span class="comment">// cm</span>
@@ -332,8 +335,7 @@
             blackThreshold: <span class="number">50</span>,
             darkness: <span class="number">70</span>,
             noTrim: <span class="keyword">true</span>
-          });
-          </code></pre>
+          });</pre>
       </div>
     </div>
 
