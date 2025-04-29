@@ -1,4 +1,3 @@
-
 # 🖼️ Image to ZPL Converter
 
 Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in your browser.
@@ -24,46 +23,20 @@ Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
 <script>
-  // Assuming imageData is a base64 or Blob of the image
-  const zplCode = await convertToZPL(imageData, {
-    width: 8,         // cm
-    height: 4.5,      // cm
-    format: 'ACS',    // or 'Z64'
-    rotation: 'N',    // N, R, L, or I
-    blackThreshold: 50,
-    darkness: 70,
-    noTrim: true
-  });
-
-  console.log(zplCode); // Output your ZPL string
-</script>
-```
-
----
-
-## 🖼️ Example Usage for Image Formats
-
-### Using Base64 Image String
-
-```html
-<!-- Import pako for Z64 compression -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-
-<script>
   async function convertImageToZPL() {
     // Assuming base64Image is the base64 string of your image
-    const base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...";  // Replace with your base64 string
+    const base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."; // Replace with your base64 string
 
-    const imageData = base64Image.split(',')[1]; // Strip the base64 header
+    const imageData = base64Image.split(",")[1]; // Strip the base64 header
 
     const zplCode = await convertToZPL(imageData, {
-      width: 8,         // cm
-      height: 4.5,      // cm
-      format: 'ACS',    // or 'Z64'
-      rotation: 'N',    // N, R, L, or I
+      width: 8, // cm
+      height: 4.5, // cm
+      format: "ACS", // or 'Z64'
+      rotation: "N", // N, R, L, or I
       blackThreshold: 50,
       darkness: 70,
-      noTrim: true
+      noTrim: true,
     });
 
     console.log(zplCode); // Output ZPL string
