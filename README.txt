@@ -1,37 +1,50 @@
-ZPL Converter
-=============
+# 🖼️ Image to ZPL Converter
 
-ZPL Converter is a web-based tool for converting images to ZPL (Zebra Programming Language) for use with Zebra label printers.
+Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in your browser.
 
-🌐 Demo
--------
-Try it here: https://image-to-zpl-online.vercel.app/
+🧪 **Live Demo**: [image-to-zpl-online.vercel.app](https://image-to-zpl-online.vercel.app/)
 
-✨ Features
-----------
-- Upload an image and convert it to ZPL format
-- Choose between ACS or Z64 encoding
-- Set label size (width and height in cm)
-- Adjust black threshold and darkness
-- Rotate image (0°, 90°, 180°, 270°)
-- Optional edge trimming
-- Live ZPL preview with Labelary API
-- Copy ZPL output to clipboard or download it
+---
 
-🛠️ Technologies Used
----------------------
-- HTML, CSS, JavaScript
-- Pako (for compression)
-- Labelary API (for rendering preview)
+## ✨ Features
 
-📁 Project Structure
----------------------
-- `index.html` – main UI page
-- `zpl-converter.js` – handles image processing and ZPL generation
+- Convert images to **Z64** or **ACS** formats
+- Set label size, rotation, threshold, and darkness
+- Trim whitespace automatically (or keep full image)
+- Runs fully in-browser, no backend required
+- Export raw ZPL code for your Zebra printer
 
-📄 License
-----------
-MIT License
+---
 
-Developed by O-RGB
-GitHub: https://github.com/O-RGB/image-to-zpl-online
+## 🚀 Usage Example
+
+```html
+<!-- Import pako for Z64 compression -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+
+<script>
+  // Assuming imageData is a base64 or Blob of the image
+  const zplCode = await convertToZPL(imageData, {
+    width: 8,         // cm
+    height: 4.5,      // cm
+    format: 'ACS',    // or 'Z64'
+    rotation: 'N',    // N, R, L, or I
+    blackThreshold: 50,
+    darkness: 70,
+    noTrim: true
+  });
+
+  console.log(zplCode); // Output your ZPL string
+</script>
+
+---
+
+## 🙏 Acknowledgements
+
+This project is inspired by and uses parts of code from:
+
+- [metafloor/zpl-image](https://github.com/metafloor/zpl-image) – ZPL image converter in JavaScript
+
+Modifications and additional features were made specifically for use in this web-based tool.
+
+Thank you to the original authors for providing such a great project!
