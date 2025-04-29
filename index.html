@@ -6,6 +6,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="./zpl-converter.js"></script>
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         font-family: sans-serif;
         margin: 0;
@@ -25,6 +29,9 @@
         width: 40%;
         background-color: #f5f5f5;
         border-right: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
       }
 
       .right {
@@ -34,26 +41,31 @@
 
       h2,
       h3 {
-        margin-top: 0;
+        margin: 0;
       }
 
       label {
-        display: block;
-        margin-top: 10px;
         font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
 
       input[type="number"],
       select,
       textarea {
         width: 100%;
-        margin-top: 4px;
-        padding: 5px;
+        padding: 6px 10px;
         font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 5px;
       }
 
       textarea {
-        margin-top: 10px;
         resize: vertical;
       }
 
@@ -97,16 +109,39 @@
         background-color: white;
         max-width: 100%;
       }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      .download-link {
+        margin-top: 10px;
+        display: inline-block;
+        background-color: #1976d2;
+        color: white;
+        padding: 8px 14px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .download-link:hover {
+        background-color: #125ca0;
+      }
     </style>
   </head>
 
   <body>
     <div class="left">
       <h2>ZPL Converter</h2>
+
       <input type="file" id="imageInput" accept="image/*" />
 
-      <label
-        >ความกว้าง (cm):
+      <label>
+        ความกว้าง (cm):
         <input
           type="number"
           id="width"
@@ -116,8 +151,8 @@
         />
       </label>
 
-      <label
-        >ความสูง (cm):
+      <label>
+        ความสูง (cm):
         <input
           type="number"
           id="height"
@@ -127,16 +162,16 @@
         />
       </label>
 
-      <label
-        >รูปแบบ:
+      <label>
+        รูปแบบ:
         <select id="format" onchange="convertImage()">
           <option value="ACS">ACS</option>
           <option value="Z64">Z64</option>
         </select>
       </label>
 
-      <label
-        >การหมุน:
+      <label>
+        การหมุน:
         <select id="rotation" onchange="convertImage()">
           <option value="N">ไม่มี</option>
           <option value="R">ขวา 90°</option>
@@ -145,8 +180,8 @@
         </select>
       </label>
 
-      <label
-        >ระดับความดำ (1–99):
+      <label>
+        ระดับความดำ (1–99):
         <input
           type="number"
           id="blackThreshold"
@@ -157,8 +192,8 @@
         />
       </label>
 
-      <label
-        >ความเข้ม (0–100):
+      <label>
+        ความเข้ม (0–100):
         <input
           type="number"
           id="darkness"
@@ -169,17 +204,23 @@
         />
       </label>
 
-      <label
-        >ไม่ตัดขอบ (noTrim):
+      <label class="checkbox-label">
         <input type="checkbox" id="noTrim" checked onchange="convertImage()" />
+        ไม่ตัดขอบ (noTrim)
       </label>
 
       <h3>ZPL Output</h3>
       <textarea id="zplOutput" rows="8"></textarea>
+
+      <a href="./zpl-converter.js" download class="download-link"
+        >⬇️ ดาวน์โหลด zpl-converter.js</a
+      >
     </div>
 
     <div class="right">
-      <h2>Preview ZPL (Labelary)</h2>
+      <div style="padding-bottom: 20px;">
+        <h2>Preview ZPL (Labelary)</h2>
+      </div>
       <div id="previewContainer" class="preview-wrapper">
         <div id="rulerH" class="ruler horizontal"></div>
         <div id="rulerV" class="ruler vertical"></div>
@@ -205,8 +246,6 @@
       async function convertImage() {
         const zplOutput = document.getElementById("zplOutput");
         const zplPreview = document.getElementById("zplPreview");
-        const rulerH = document.getElementById("rulerH");
-        const rulerV = document.getElementById("rulerV");
 
         if (!base64ImageData) return;
 
@@ -241,7 +280,6 @@
           const blob = await response.blob();
           zplPreview.src = URL.createObjectURL(blob);
 
-          // update ruler ticks
           updateRulers(options.width, options.height);
         } catch (error) {
           console.error("แปลงภาพหรือแสดง preview ไม่สำเร็จ:", error);
