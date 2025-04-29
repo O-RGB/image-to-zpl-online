@@ -2,9 +2,18 @@
 <html lang="th">
   <head>
     <meta charset="UTF-8" />
-    <title>ZPL Converter + Preview</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Convert images to Zebra ZPL label format online. Preview and download ZPL code for Zebra printers."
+    />
+    <meta
+      name="keywords"
+      content="ZPL converter, Zebra label, image to ZPL, label printer, ZPL code generator"
+    />
+    <title>ZPL Converter – Convert Images to Zebra ZPL</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="./zpl-converter.js"></script>
+    <script src="./dict/zpl-converter.js"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -16,6 +25,7 @@
         padding: 0;
         display: flex;
         height: 100vh;
+        width: 100vw;
         overflow: hidden;
       }
 
@@ -27,8 +37,8 @@
 
       .left {
         width: 40%;
-        background-color: #f5f5f5;
-        border-right: 1px solid #ccc;
+        background-color: #eee;
+        border-right: 1px solid #000;
         display: flex;
         flex-direction: column;
         gap: 15px;
@@ -37,11 +47,13 @@
       .right {
         width: 60%;
         background-color: #fff;
+        display: flex;
+        flex-direction: column;
       }
 
       h2,
       h3 {
-        margin: 0;
+        margin: 0 0 15px 0;
       }
 
       label {
@@ -51,31 +63,36 @@
         gap: 4px;
       }
 
-      input[type="number"],
-      select,
-      textarea {
-        width: 100%;
-        padding: 6px 10px;
+      .label-checkbox {
         font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        display: inline !important;
+        gap: 4px;
+      }
+
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 2px;
+        font-size: 14px;
+        border: 1px solid #000;
+        border-radius: 0;
+        background-color: #fff;
+        -webkit-appearance: menulist;
+        -moz-appearance: menulist;
+        appearance: menulist;
       }
 
       input[type="checkbox"] {
         margin-right: 5px;
       }
 
-      textarea {
-        resize: vertical;
-      }
-
       .preview-wrapper {
-        position: relative;
         margin-top: 10px;
-        border: 2px dashed gray;
-        background-color: #fafafa;
+        border: 1px solid black;
+        background-color: #fff;
         padding: 20px;
         display: inline-block;
+        position: relative;
       }
 
       .ruler {
@@ -110,126 +127,245 @@
         max-width: 100%;
       }
 
-      .checkbox-label {
-        display: flex;
-        align-items: center;
-        font-size: 14px;
-      }
-
       .download-link {
-        margin-top: 10px;
+        position: sticky;
+        bottom: 20px;
+        margin-top: 15px;
         display: inline-block;
-        background-color: #1976d2;
+        background-color: #808080;
         color: white;
-        padding: 8px 14px;
+        padding: 5px 10px;
         text-decoration: none;
-        border-radius: 5px;
+        border: 2px outset #c0c0c0;
         font-size: 14px;
         text-align: center;
+        font-family: Arial, sans-serif;
       }
 
       .download-link:hover {
-        background-color: #125ca0;
+        background-color: #606060;
+      }
+
+      .download-link:active {
+        border-style: inset;
+      }
+
+      .placeholder {
+        color: #000;
+        text-align: center;
+        padding: 40px 0;
+        font-family: "Times New Roman", Times, serif;
+      }
+
+      .hidden {
+        display: none;
+      }
+      .code-example {
+        background-color: #f8f8f8;
+        border-radius: 8px;
+        font-size: 13px;
+        border: 1px solid #e0e0e0;
+        line-height: 1.6;
+        padding: 16px;
+        color: #333;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-x: hidden;
+      }
+
+      .code-example .comment {
+        color: #6a9955;
+        font-style: italic;
+      }
+      .code-example .keyword {
+        color: #569cd6;
+        font-weight: bold;
+      }
+      .code-example .string {
+        color: #ce9178;
+      }
+      .code-example .number {
+        color: #b5cea8;
+      }
+
+      .section {
+        margin-bottom: 15px;
+      }
+
+      .output-section {
+        margin-top: 20px;
+      }
+
+      #output {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        font-family: "Courier New", Courier, monospace;
+        white-space: pre;
+        overflow-wrap: break-word;
+        overflow-x: auto;
+        resize: vertical;
+        padding: 5px;
+        margin-top: 10px;
+        background-color: #fff;
+        color: #000;
       }
     </style>
   </head>
 
   <body>
     <div class="left">
-      <h2>ZPL Converter</h2>
+      <div class="section">
+        <h2>ZPL Converter</h2>
+      </div>
 
-      <input type="file" id="imageInput" accept="image/*" />
+      <div class="section">
+        <input type="file" id="imageInput" accept="image/*" />
+      </div>
 
-      <label>
-        ความกว้าง (cm):
+      <div class="section">
+        <label>
+          Width (cm):
+          <input
+            type="number"
+            id="width"
+            value="8"
+            step="0.1"
+            oninput="convertImage()"
+          />
+        </label>
+      </div>
+
+      <div class="section">
+        <label>
+          Height (cm):
+          <input
+            type="number"
+            id="height"
+            value="4.5"
+            step="0.1"
+            oninput="convertImage()"
+          />
+        </label>
+      </div>
+
+      <div class="section">
+        <label>
+          Format:
+          <select id="format" onchange="convertImage()">
+            <option value="ACS">ACS</option>
+            <option value="Z64">Z64</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="section">
+        <label>
+          Rotation:
+          <select id="rotation" onchange="convertImage()">
+            <option value="N">None</option>
+            <option value="R">Right 90°</option>
+            <option value="L">Left 90°</option>
+            <option value="I">Inverted</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="section">
+        <label>
+          Black Threshold (1–99):
+          <input
+            type="number"
+            id="blackThreshold"
+            value="50"
+            min="1"
+            max="99"
+            oninput="convertImage()"
+          />
+        </label>
+      </div>
+
+      <div class="section">
+        <label>
+          Darkness (0–100):
+          <input
+            type="number"
+            id="darkness"
+            value="70"
+            min="0"
+            max="100"
+            oninput="convertImage()"
+          />
+        </label>
+      </div>
+
+      <div class="section">
         <input
-          type="number"
-          id="width"
-          value="8"
-          step="0.1"
-          oninput="convertImage()"
+          type="checkbox"
+          id="noTrim"
+          name="noTrim"
+          checked
+          onchange="convertImage()"
         />
-      </label>
+        <label class="label-checkbox" for="noTrim"
+          >Don't trim edges (noTrim)</label
+        >
+      </div>
 
-      <label>
-        ความสูง (cm):
-        <input
-          type="number"
-          id="height"
-          value="4.5"
-          step="0.1"
-          oninput="convertImage()"
-        />
-      </label>
-
-      <label>
-        รูปแบบ:
-        <select id="format" onchange="convertImage()">
-          <option value="ACS">ACS</option>
-          <option value="Z64">Z64</option>
-        </select>
-      </label>
-
-      <label>
-        การหมุน:
-        <select id="rotation" onchange="convertImage()">
-          <option value="N">ไม่มี</option>
-          <option value="R">ขวา 90°</option>
-          <option value="L">ซ้าย 90°</option>
-          <option value="I">กลับหัว</option>
-        </select>
-      </label>
-
-      <label>
-        ระดับความดำ (1–99):
-        <input
-          type="number"
-          id="blackThreshold"
-          value="50"
-          min="1"
-          max="99"
-          oninput="convertImage()"
-        />
-      </label>
-
-      <label>
-        ความเข้ม (0–100):
-        <input
-          type="number"
-          id="darkness"
-          value="70"
-          min="0"
-          max="100"
-          oninput="convertImage()"
-        />
-      </label>
-
-      <label class="checkbox-label">
-        <input type="checkbox" id="noTrim" checked onchange="convertImage()" />
-        ไม่ตัดขอบ (noTrim)
-      </label>
-
-      <h3>ZPL Output</h3>
-      <textarea id="zplOutput" rows="8"></textarea>
-
-      <a href="./zpl-converter.js" download class="download-link"
-        >⬇️ ดาวน์โหลด zpl-converter.js</a
-      >
+      <div class="section">
+        <a href="./zpl-converter.js" download class="download-link"
+          >⬇️ Download zpl-converter.js</a
+        >
+      </div>
+      <div class="section">
+        <h3>How to Use</h3>
+        <pre class="code-example"><code>
+          <span class="comment">// Import pako for compression (if needed)</span>
+          &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"&gt;&lt;/script&gt;
+          
+          <span class="comment">// Basic usage example</span>
+          <span class="keyword">const</span> zplCode = <span class="keyword">await</span> convertToZPL(imageData, {
+            width: <span class="number">8</span>,        <span class="comment">// cm</span>
+            height: <span class="number">4.5</span>,     <span class="comment">// cm</span>
+            format: <span class="string">'ACS'</span>,   <span class="comment">// or 'Z64'</span>
+            rotation: <span class="string">'N'</span>,   <span class="comment">// N, R, L, or I</span>
+            blackThreshold: <span class="number">50</span>,
+            darkness: <span class="number">70</span>,
+            noTrim: <span class="keyword">true</span>
+          });
+          </code></pre>
+      </div>
     </div>
 
     <div class="right">
-      <div style="padding-bottom: 20px;">
-        <h2>Preview ZPL (Labelary)</h2>
+      <div class="section">
+        <h2>ZPL Preview (Labelary)</h2>
       </div>
-      <div id="previewContainer" class="preview-wrapper">
-        <div id="rulerH" class="ruler horizontal"></div>
-        <div id="rulerV" class="ruler vertical"></div>
-        <img id="zplPreview" alt="ZPL Preview" />
+
+      <div class="preview-section">
+        <div id="previewContainer" class="preview-wrapper">
+          <div id="rulerH" class="ruler horizontal hidden"></div>
+          <div id="rulerV" class="ruler vertical hidden"></div>
+          <div id="previewPlaceholder" class="placeholder">
+            Preview will appear here after conversion
+          </div>
+          <img id="zplPreview" class="hidden" alt="ZPL Preview" />
+        </div>
+      </div>
+
+      <div class="output-section">
+        <h3>ZPL Output</h3>
+        <textarea id="output" rows="5" readonly></textarea>
       </div>
     </div>
 
     <script>
       let base64ImageData = null;
+      const zplPreview = document.getElementById("zplPreview");
+      const previewPlaceholder = document.getElementById("previewPlaceholder");
+      const rulerH = document.getElementById("rulerH");
+      const rulerV = document.getElementById("rulerV");
+      const output = document.getElementById("output");
 
       document.getElementById("imageInput").addEventListener("change", () => {
         const file = document.getElementById("imageInput").files[0];
@@ -244,10 +380,15 @@
       });
 
       async function convertImage() {
-        const zplOutput = document.getElementById("zplOutput");
-        const zplPreview = document.getElementById("zplPreview");
+        // Hide preview elements initially
+        zplPreview.classList.add("hidden");
+        previewPlaceholder.classList.remove("hidden");
+        rulerH.classList.add("hidden");
+        rulerV.classList.add("hidden");
 
-        if (!base64ImageData) return;
+        if (!base64ImageData) {
+          return;
+        }
 
         const options = {
           width: parseFloat(document.getElementById("width").value),
@@ -263,7 +404,7 @@
 
         try {
           const zplCode = await convertToZPL(base64ImageData, options);
-          zplOutput.value = zplCode;
+          output.value = zplCode;
 
           const inchesWidth = options.width / 2.54;
           const inchesHeight = options.height / 2.54;
@@ -280,16 +421,22 @@
           const blob = await response.blob();
           zplPreview.src = URL.createObjectURL(blob);
 
+          zplPreview.classList.remove("hidden");
+          previewPlaceholder.classList.add("hidden");
+          rulerH.classList.remove("hidden");
+          rulerV.classList.remove("hidden");
+
           updateRulers(options.width, options.height);
         } catch (error) {
           console.error("แปลงภาพหรือแสดง preview ไม่สำเร็จ:", error);
+          zplPreview.classList.add("hidden");
+          previewPlaceholder.classList.remove("hidden");
+          rulerH.classList.add("hidden");
+          rulerV.classList.add("hidden");
         }
       }
 
       function updateRulers(widthCm, heightCm) {
-        const rulerH = document.getElementById("rulerH");
-        const rulerV = document.getElementById("rulerV");
-
         rulerH.innerHTML = "";
         rulerV.innerHTML = "";
 
