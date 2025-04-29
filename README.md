@@ -21,6 +21,7 @@ Convert images (PNG, JPG, etc.) to ZPL code for Zebra label printers directly in
 ```html
 <!-- Import pako for Z64 compression -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="./zpl-converter.js"></script>
 
 <script>
   async function convertImageToZPL() {
